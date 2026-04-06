@@ -126,23 +126,17 @@ def download_file(file_path: str) -> bytes:
 
 
 def get_cyrillic_font_name():
-    font_candidates = [
-        ("/System/Library/Fonts/Supplemental/Arial.ttf", "AppArial"),
-        ("/System/Library/Fonts/Supplemental/Arial Bold.ttf", "AppArialBold"),
-        ("/Library/Fonts/Arial.ttf", "AppArialLocal"),
-        ("/System/Library/Fonts/Supplemental/Verdana.ttf", "AppVerdana"),
-        ("/Library/Fonts/Verdana.ttf", "AppVerdanaLocal"),
-    ]
+    font_path = BASE_DIR / "fonts" / "DejaVuSans.ttf"
+    font_name = "DejaVuSans"
 
-    for font_path, font_name in font_candidates:
-        if Path(font_path).exists():
-            try:
-                pdfmetrics.registerFont(TTFont(font_name, font_path))
-                return font_name
-            except Exception:
-                pass
+    if not font_path.exists():
+        return "Helvetica"
 
-    return "Helvetica"
+    try:
+        pdfmetrics.registerFont(TTFont(font_name, str(font_path)))
+        return font_name
+    except Exception:
+        return "Helvetica"
 
 
 def wrap_text(text: str, max_width: float, font_name: str, font_size: int):
