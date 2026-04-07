@@ -27,9 +27,6 @@ PDF_DIR.mkdir(parents=True, exist_ok=True)
 
 ALMATY_TZ = ZoneInfo("Asia/Almaty")
 
-# ВСТАВЬ СВОЙ ТОКЕН СЮДА
-import os
-
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = int(os.getenv("TELEGRAM_CHAT_ID", "-5103186317"))
 
@@ -89,7 +86,7 @@ def startup():
 
 def tg_api_url(method: str) -> str:
     if not TELEGRAM_BOT_TOKEN or "ВСТАВЬ_СЮДА" in TELEGRAM_BOT_TOKEN:
-        raise HTTPException(status_code=500, detail="Заполни TELEGRAM_BOT_TOKEN в app.py")
+        raise HTTPException(status_code=500, detail="Заполни TELEGRAM_BOT_TOKEN")
     return f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/{method}"
 
 
@@ -327,11 +324,12 @@ def update_existing_posting_if_needed(existing_row, item):
     old_caption = existing_row["caption_text"] or existing_row["product_name"] or ""
     new_caption = item["caption"]
 
-    if is_delete_caption(new_caption):
-        return mark_deleted_if_needed(existing_row, item)
-
+    # Уже распечатанные никогда не трогаем
     if current_status == "printed":
         return "skipped_printed"
+
+    if is_delete_caption(new_caption):
+        return mark_deleted_if_needed(existing_row, item)
 
     metadata_changed = (
         (existing_row["source_file_name"] or "") != item["file_name"] or
@@ -347,7 +345,7 @@ def update_existing_posting_if_needed(existing_row, item):
         conn = db()
         conn.execute("""
             UPDATE postings
-            SET source_file_name = ?, sender_name = ?, telegram_date = ?, telegram_local_time = ?, status = 'new'
+            SET source_file_name = ?, sender_name = ?, telegram_date = ?, telegram_local_time = ?
             WHERE source_id = ?
         """, (
             item["file_name"],
