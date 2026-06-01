@@ -468,7 +468,7 @@ def extract_items_from_updates():
         caption = (msg.get("caption") or "").strip()
         telegram_local_time = telegram_ts_to_almaty_str(telegram_date)
         chat_id = chat.get("id")
-	source_id = f"tg_{chat_id}_{message_id}"
+        source_id = f"tg_{chat_id}_{message_id}"
 
         items_by_source_id[source_id] = {
             "source_id": source_id,
