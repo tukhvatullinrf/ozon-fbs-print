@@ -663,3 +663,11 @@ def return_to_new(source_id: str):
     conn.commit()
     conn.close()
     return RedirectResponse(url="/?show=printed", status_code=303)
+
+@app.get("/admin-reset-telegram-offset")
+def admin_reset_telegram_offset():
+    conn = db()
+    conn.execute("DELETE FROM settings WHERE key = 'last_update_id'")
+    conn.commit()
+    conn.close()
+    return {"ok": True, "message": "telegram offset reset"}
